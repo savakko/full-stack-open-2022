@@ -1,20 +1,20 @@
-const Header = (wrapper) => <h1>{wrapper.course.name}</h1>
-const Part = (wrapper) => <p>{wrapper.part.name} {wrapper.part.exercises}</p>
-const Total = (wrapper) => {
+const Header = (props) => <h1>{props.course.name}</h1>
+const Part = (props) => <p>{props.part.name} {props.part.exercises}</p>
+const Total = (props) => {
   return (
     <p>
       Number of exercises {
-        wrapper.parts.map(e => e.exercises).reduce((sum, b) => sum + b)
+        props.parts.map(e => e.exercises).reduce((sum, b) => sum + b)
       }
     </p>
   )
 }
-const Content = (wrapper) => {
+const Content = (props) => {
   return (
     <div>
-      <Part part={wrapper.parts[0]} />
-      <Part part={wrapper.parts[1]} />
-      <Part part={wrapper.parts[2]} />
+      <Part part={props.parts[0]} />
+      <Part part={props.parts[1]} />
+      <Part part={props.parts[2]} />
     </div>
   )
 }
