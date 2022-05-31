@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import axios from 'axios'
 
 const InputField = ({ desc, value, action }) => 
   <div>{desc}: <input value={value} onChange={action} /></div>
@@ -37,6 +38,15 @@ const App = () => {
     setNewName('')
     setNewNumber('')
   }
+
+  const hook = () => {
+    axios.get('http://localhost:3001/persons').then(response => {
+      setPersons(response.data)
+    })
+  }
+  console.log(persons.length)
+
+  useEffect(hook, [])
 
   return (
     <div>
