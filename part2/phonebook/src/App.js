@@ -44,7 +44,6 @@ const App = () => {
       setPersons(response.data)
     })
   }
-  console.log(persons.length)
 
   useEffect(hook, [])
 
