@@ -6,25 +6,53 @@ import CountryDisplay from './components/CountryDisplay'
 const App = () => {
   const [countries, setCountries] = useState([])
   const [country, setCountry] = useState({})
+  const [weather, setWeather] = useState({})
   const [searchParams, setSearchParams] = useState('')
 
-  useEffect(() => {
-    axios.get('https://restcountries.com/v3.1/all').then(response => {
-      setCountries(response.data)
-    })
-  }, [])
+  // Currently, this is evaluated twice in every render when updating searchParams
+  const filterCountries = (params) => countries.filter(country =>
+    country.name.common.toUpperCase().includes(params.toUpperCase()))
+
+  const updateCountryList = () => {
+    axios
+      .get('https://restcountries.com/v3.1/all')
+      .then(response => setCountries(response.data))
+  }
+
+  const updateWeatherByLocation = (loc) => {
+    axios
+      .get(`https://api.openweathermap.org/data/2.5/weather?lat=${loc[0]}&lon=${loc[1]}&appid=${process.env.REACT_APP_WEATHER_API_KEY}&units=metric`)
+      .then(response => setWeather(response.data))
+  }
 
   const updateSearch = (event) => {
-    if (Object.keys(country).length !== 0) {
+    const filteredCountries = filterCountries(event.target.value)
+    if (filteredCountries.length === 1)
+      updateCountry(filteredCountries[0])
+    else {
       setCountry({})
+      setWeather({})
     }
+
     setSearchParams(event.target.value)
   }
+
+  const updateCountry = (country) => {
+    updateWeatherByLocation(country.capitalInfo.latlng)
+    setCountry(country)
+  }
+
+  useEffect(updateCountryList, [])
 
   return (
     <div>
       find countries <input value={searchParams} onChange={updateSearch} />
-      <CountryDisplay countryList={countries} currentCountry={country} show={setCountry} searchParams={searchParams} />
+      <CountryDisplay 
+        countryList={filterCountries(searchParams)} 
+        country={country} 
+        weather={weather} 
+        selectCountry={updateCountry}
+      />
     </div>
   )
 }

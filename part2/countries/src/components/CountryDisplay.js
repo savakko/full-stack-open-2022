@@ -1,30 +1,24 @@
-const CountryDisplay = ({ countryList, currentCountry, show, searchParams }) => {
-  // Render the currently selected country if applicable
-  if (Object.keys(currentCountry).length !== 0) {
-    return <Country country={currentCountry} />
+const CountryDisplay = ({ countryList, country, weather, selectCountry }) => {
+  // Render a country if one is selected
+  if (Object.keys(country).length > 0) {
+    return <div>
+      <Country country={country} />
+      <WeatherInfo weatherData={weather} />
+    </div>
   }
 
-  // Filter the [countryList] based on [searchParams]
-  const filteredCountries = countryList.filter(country =>
-    country.name.common.toUpperCase().includes(searchParams.toUpperCase()))
-
-  // Update the state if there's a direct match
-  if (filteredCountries.length === 1) {
-    return <Country country={filteredCountries[0]} />
-  }
-
-  // Refuse to render an excessively long list
-  if (filteredCountries.length > 10) {
+  // Refuse to render when there are too many matches
+  if (countryList.length > 10) {
     return <div>Too many matches, specify another filter</div>
   }
 
-  // Render the list if there are 0 or 2-10 matches
-  return <CountryList countries={filteredCountries} action={show} />
+  // In all other cases, render a list of countries
+  return <CountryList countryList={countryList} action={selectCountry} />
 }
 
-const CountryList = ({ countries, action }) => 
+const CountryList = ({ countryList, action }) => 
   <div>
-    {countries.map(country => 
+    {countryList.map(country => 
       <div key={country.name.common}>
         {country.name.common}
         <button onClick={() => action(country)}>show</button>
@@ -47,5 +41,20 @@ const Country = ({ country }) =>
     <img src={country.flags.png} alt="No flag available"></img>
     <h2>Weather in {country.capital}</h2>
   </div>
+
+const WeatherInfo = ({ weatherData }) => {
+  console.log(weatherData)
+  if (Object.keys(weatherData).length === 0) {
+    return <div>Awaiting weather info...</div>
+  }
+
+  return (
+    <div>
+      <div>temperature {weatherData.main.temp} Celsius</div>
+      <img src={`http://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`} alt={weatherData.weather[0].description} />
+      <div>wind {weatherData.wind.speed} m/s</div>
+    </div>
+  )
+}
 
 export default CountryDisplay
