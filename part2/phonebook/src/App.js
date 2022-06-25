@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
 
+import './index.css'
+
 import { InputField, PersonForm, Persons } from './components/personComponents'
+import { Notification } from './components/utils'
 import personService from "./services/persons"
 
 const App = () => {
@@ -8,6 +11,7 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filterParams, setFilterParams] = useState('')
+  const [notification, setNotification] = useState({ message: '', style: 'success' })
 
   const getPersons = () => {
     personService.getPersons().then(response => setPersons(response))
@@ -25,7 +29,10 @@ const App = () => {
     }
 
     personService.postPerson({ name: newName, number: newNumber })
-      .then(response => setPersons(persons.concat(response)))
+      .then(response => {
+        setPersons(persons.concat(response))
+        notify(`Added ${response.name}`, 'success')
+      })
 
     setNewName('')
     setNewNumber('')
@@ -33,7 +40,10 @@ const App = () => {
 
   const updatePerson = (person) => {
     personService.updatePerson(person)
-      .then(() => getPersons())  // Fetch the resources again because I'm lazy
+      .then(() => {
+        getPersons()  // Fetch the resources again because I'm lazy
+        notify(`Updated ${person.name}`, 'success')
+      })
 
     setNewName('')
     setNewNumber('')
@@ -45,9 +55,21 @@ const App = () => {
     return (person) => {
       if (window.confirm('Are you sure?')) {
         personService.deletePerson(person)
-          .then(setPersons(persons.filter(p => p.id !== person.id)))
+          .then(() => {
+            setPersons(persons.filter(p => p.id !== person.id))
+            notify(`Deleted ${person.name}`, 'success')
+          })
+          .catch(error => {
+            notify(`Information of ${person.name} has already been removed from server`, 'error')
+            getPersons()
+          })
       }
     }
+  }
+
+  const notify = (message, style) => {
+    setNotification({ message, style })
+    setTimeout(() => setNotification({ message: '', style: 'success' }), 3000)
   }
 
   useEffect(getPersons, [])
@@ -55,6 +77,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification notification={notification} />
       <InputField
         desc={"Filter shown with"}
         value={filterParams}
