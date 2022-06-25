@@ -9,7 +9,7 @@ const App = () => {
   const [weather, setWeather] = useState({})
   const [searchParams, setSearchParams] = useState('')
 
-  // Currently, this is evaluated twice in every render when updating searchParams
+  // Currently, this is called twice in every render when updating searchParams
   const filterCountries = (params) => countries.filter(country =>
     country.name.common.toUpperCase().includes(params.toUpperCase()))
 
@@ -37,6 +37,7 @@ const App = () => {
     setSearchParams(event.target.value)
   }
 
+  // To reduce weather API calls, the weather data could be appended within the list of countries
   const updateCountry = (country) => {
     updateWeatherByLocation(country.capitalInfo.latlng)
     setCountry(country)

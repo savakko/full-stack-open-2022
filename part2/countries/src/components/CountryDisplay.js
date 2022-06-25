@@ -43,7 +43,6 @@ const Country = ({ country }) =>
   </div>
 
 const WeatherInfo = ({ weatherData }) => {
-  console.log(weatherData)
   if (Object.keys(weatherData).length === 0) {
     return <div>Awaiting weather info...</div>
   }
