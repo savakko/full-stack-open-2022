@@ -33,6 +33,7 @@ const App = () => {
         setPersons(persons.concat(response))
         notify(`Added ${response.name}`, 'success')
       })
+      .catch(error => notify(`${error.response.data.error}`, 'error'))
 
     setNewName('')
     setNewNumber('')
