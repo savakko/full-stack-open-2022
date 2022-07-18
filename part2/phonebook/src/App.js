@@ -45,6 +45,7 @@ const App = () => {
         getPersons()  // Fetch the resources again because I'm lazy
         notify(`Updated ${person.name}`, 'success')
       })
+      .catch(error => notify(`${error.response.data.error}`, 'error'))
 
     setNewName('')
     setNewNumber('')
