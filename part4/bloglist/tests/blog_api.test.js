@@ -126,6 +126,28 @@ describe('changing the state of the blog database', () => {
     expect(lastBlog.likes).toEqual(0)
   })
 
+  test('a blog can be updated', async () => {
+    const blogsAtStart = await helper.blogsInDb()
+    const blogToUpdate = blogsAtStart[0]
+
+    const updatedBlog = {
+      title: 'Eeppinen esimerkkiblogi',
+      author: "Erkki Esimerkki",
+      url: "esimerkkiurl.com",
+    }
+
+    await api
+      .put(`/api/blogs/${blogToUpdate.id}`)
+      .send(updatedBlog)
+      .expect(200)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    expect(blogsAtEnd.length).toEqual(helper.initialBlogs.length)
+
+    const titles = blogsAtEnd.map(b => b.title)
+    expect(titles).toContain('Eeppinen esimerkkiblogi')
+  })
+
   test('a blog can be deleted', async () => {
     const blogsAtStart = await helper.blogsInDb()
     const blogToDelete = blogsAtStart[0]
