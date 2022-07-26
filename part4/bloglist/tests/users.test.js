@@ -1,5 +1,10 @@
-const bcrypt = require('bcrypt')
+const mongoose = require('mongoose')
 const User = require('../models/user')
+const bcrypt = require('bcrypt')
+const helper = require('./test_helper')
+const supertest = require('supertest')
+const app = require('../app')
+const api = supertest(app)
 
 describe('when there is initially one user at db', () => {
   beforeEach(async () => {
@@ -48,9 +53,13 @@ describe('when there is initially one user at db', () => {
       .expect(400)
       .expect('Content-Type', /application\/json/)
 
-    expect(result.body.error).toContain('username must be unique')
+    expect(result.body.error).toContain('expected `username` to be unique')
 
     const usersAtEnd = await helper.usersInDb()
     expect(usersAtEnd).toHaveLength(usersAtStart.length)
   })
+})
+
+afterAll(() => {
+  mongoose.connection.close()
 })
