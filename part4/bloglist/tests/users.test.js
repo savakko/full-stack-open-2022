@@ -10,9 +10,10 @@ describe('when there is initially one user at db', () => {
   beforeEach(async () => {
     await User.deleteMany({})
 
-    const passwordHash = await bcrypt.hash('sekret', 10)
-    const user = new User({ username: 'root', passwordHash })
+    const { username, password } = helper.rootUser
+    const passwordHash = await bcrypt.hash(password, 10)
 
+    const user = new User({ username, passwordHash })
     await user.save()
   })
 
