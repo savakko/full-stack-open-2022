@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken')
 const blogRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
+const { userExtractor } = require('../utils/middleware')
 
 blogRouter.get('/', async (request, response) => {
   const blogs = await Blog.find({})
@@ -9,11 +10,9 @@ blogRouter.get('/', async (request, response) => {
   response.json(blogs)
 })
 
-blogRouter.post('/', async (request, response) => {
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  const user = await User.findById(decodedToken.id)
+blogRouter.post('/', userExtractor, async (request, response) => {
+  const { user, body } = request
 
-  const body = request.body
   body.user = user._id
   const blog = new Blog(body)
 
@@ -40,11 +39,8 @@ blogRouter.put('/:id', async (request, response) => {
   response.json(blog)
 })
 
-blogRouter.delete('/:id', async (request, response) => {
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  const user = await User.findById(decodedToken.id)
-
-  if (!user.blogs.includes(request.params.id))
+blogRouter.delete('/:id', userExtractor, async (request, response) => {
+  if (!request.user.blogs.includes(request.params.id))
     return response.status(401).json({ error: 'Permission denied' })
 
   await Blog.findByIdAndDelete(request.params.id)
