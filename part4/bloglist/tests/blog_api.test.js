@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
-const supertest = require('supertest')
-const helper = require('./test_helper')
 const Blog = require('../models/blog')
+const helper = require('./test_helper')
+const supertest = require('supertest')
 const app = require('../app')
 const api = supertest(app)
 
@@ -65,7 +65,8 @@ describe('changing the state of the blog database', () => {
       title: 'async/await simplifies making async calls',
       author: 'Matti Luukkainen',
       url: 'fullstackopen.com',
-      likes: 9000
+      likes: 9000,
+      userId: (await helper.usersInDb())[0].id
     }
 
     await api
@@ -85,12 +86,14 @@ describe('changing the state of the blog database', () => {
     const newBlog = {
       author: 'Matti Luukkainen',
       url: 'fullstackopen.com',
-      likes: 9000
+      likes: 9000,
+      userId: (await helper.usersInDb())[0].id
     }
     const newBlog2 = {
       title: 'async/await simplifies making async calls',
       author: 'Matti Luukkainen',
-      likes: 9000
+      likes: 9000,
+      userId: (await helper.usersInDb())[0].id
     }
 
     await api
@@ -111,7 +114,8 @@ describe('changing the state of the blog database', () => {
     const newBlog = {
       title: 'Erkin blogi',
       author: 'Erkki Esimerkki',
-      url: 'esimerkkiurl2.com'
+      url: 'esimerkkiurl2.com',
+      userId: (await helper.usersInDb())[0].id
     }
 
     await api
