@@ -21,6 +21,14 @@ const rootUser = {
   password: 'sekret'
 }
 
+const loginRootUser = async (api) => {
+  const response = await api
+    .post('/api/login')
+    .send(rootUser)
+
+  return response.body
+}
+
 const nonExistingId = async () => {
   const blog = new Blog({
     title: 'willremovethissoon',
@@ -47,6 +55,7 @@ const usersInDb = async () => {
 module.exports = {
   initialBlogs,
   rootUser,
+  loginRootUser,
   nonExistingId,
   blogsInDb,
   usersInDb

@@ -65,12 +65,14 @@ describe('changing the state of the blog database', () => {
       title: 'async/await simplifies making async calls',
       author: 'Matti Luukkainen',
       url: 'fullstackopen.com',
-      likes: 9000,
-      userId: (await helper.usersInDb())[0].id
+      likes: 9000
     }
+
+    const user = await helper.loginRootUser(api)
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${user.token}`)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -82,27 +84,47 @@ describe('changing the state of the blog database', () => {
     expect(titles).toContain('async/await simplifies making async calls')
   })
 
-  test('a blog without a title or url is not added', async () => {
+  test('a blog sent without an authorization token is not added', async () => {
     const newBlog = {
-      author: 'Matti Luukkainen',
-      url: 'fullstackopen.com',
-      likes: 9000,
-      userId: (await helper.usersInDb())[0].id
-    }
-    const newBlog2 = {
       title: 'async/await simplifies making async calls',
       author: 'Matti Luukkainen',
-      likes: 9000,
-      userId: (await helper.usersInDb())[0].id
+      url: 'fullstackopen.com',
+      likes: 9000
     }
 
     await api
       .post('/api/blogs')
       .send(newBlog)
+      .expect(401)
+      .expect('Content-Type', /application\/json/)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
+  })
+
+  test('a blog without a title or url is not added', async () => {
+    const newBlog = {
+      author: 'Matti Luukkainen',
+      url: 'fullstackopen.com',
+      likes: 9000
+    }
+    const newBlog2 = {
+      title: 'async/await simplifies making async calls',
+      author: 'Matti Luukkainen',
+      likes: 9000
+    }
+
+    const user = await helper.loginRootUser(api)
+
+    await api
+      .post('/api/blogs')
+      .set('Authorization', `Bearer ${user.token}`)
+      .send(newBlog)
       .expect(400)
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${user.token}`)
       .send(newBlog2)
       .expect(400)
 
@@ -114,12 +136,14 @@ describe('changing the state of the blog database', () => {
     const newBlog = {
       title: 'Erkin blogi',
       author: 'Erkki Esimerkki',
-      url: 'esimerkkiurl2.com',
-      userId: (await helper.usersInDb())[0].id
+      url: 'esimerkkiurl2.com'
     }
+
+    const user = await helper.loginRootUser(api)
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${user.token}`)
       .send(newBlog)
       .expect(201)
 
@@ -152,16 +176,33 @@ describe('changing the state of the blog database', () => {
     expect(titles).toContain('Eeppinen esimerkkiblogi')
   })
 
-  test('a blog can be deleted', async () => {
-    const blogsAtStart = await helper.blogsInDb()
-    const blogToDelete = blogsAtStart[0]
+  test('an added blog can be deleted', async () => {
+    const newBlog = {
+      title: 'async/await simplifies making async calls',
+      author: 'Matti Luukkainen',
+      url: 'fullstackopen.com',
+      likes: 9000
+    }
+
+    const user = await helper.loginRootUser(api)
+
+    await api
+      .post('/api/blogs')
+      .set('Authorization', `Bearer ${user.token}`)
+      .send(newBlog)
+      .expect(201)
+
+    const blogsAfterAdd = await helper.blogsInDb()
+    const blogToDelete = blogsAfterAdd
+      .find(b => b.title === newBlog.title)
 
     await api
       .delete(`/api/blogs/${blogToDelete.id}`)
+      .set('Authorization', `Bearer ${user.token}`)
       .expect(204)
 
     const blogsAtEnd = await helper.blogsInDb()
-    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length - 1)
+    expect(blogsAtEnd).toHaveLength(blogsAfterAdd.length - 1)
 
     const titles = blogsAtEnd.map(b => b.title)
     expect(titles).not.toContain(blogToDelete.title)
