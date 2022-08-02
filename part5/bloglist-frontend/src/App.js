@@ -16,9 +16,8 @@ const App = () => {
   const blogFormRef = useRef()
 
   useEffect(() => {
-    blogService.getAll().then(blogs =>
-      setBlogs( blogs )
-    )
+    blogService.getAll()
+      .then(blogs => setBlogs(blogs))
   }, [])
 
   useEffect(() => {
@@ -54,12 +53,26 @@ const App = () => {
     notify('logout successful')
   }
 
-  const createBlog = (newBlog) => {
-    blogService.create(newBlog)
+  const createBlog = (blog) => {
+    blogService.create(blog)
       .then(createdBlog => {
         blogFormRef.current.toggleVisibility()
         setBlogs(blogs.concat(createdBlog))
         notify(`a new blog ${createdBlog.title} by ${createdBlog.author} added`)
+      })
+      .catch(exception => notify(exception.response.data.error, 'error'))
+  }
+
+  const updateBlog = (id, blog) => {
+    blogService.update(id, blog)
+      .then((updatedBlog) => {
+        const newBlogs = blogs.map(b => {
+          if (b.id === updatedBlog.id)
+            return { ...b, likes: updatedBlog.likes }
+          return b
+        })
+        setBlogs(newBlogs)
+        notify(`blog ${updatedBlog.title} by ${updatedBlog.author} updated`)
       })
       .catch(exception => notify(exception.response.data.error, 'error'))
   }
@@ -83,7 +96,7 @@ const App = () => {
           <h2>Blogs</h2>
           {blogs
             .filter(blog => blog.user?.username === user.username)
-            .map(blog => <Blog key={blog.id} blog={blog} />)
+            .map(blog => <Blog key={blog.id} blog={blog} handleLike={updateBlog} />)
           }
         </div>
       }
