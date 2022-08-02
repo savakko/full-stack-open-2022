@@ -57,7 +57,16 @@ const App = () => {
     blogService.create(blog)
       .then(createdBlog => {
         blogFormRef.current.toggleVisibility()
-        setBlogs(blogs.concat(createdBlog))
+
+        const newBlog = {
+          ...createdBlog,
+          user: {
+            id: createdBlog.user,
+            username: user.username,
+            name: user.name
+          }
+        }
+        setBlogs(blogs.concat(newBlog))
         notify(`a new blog ${createdBlog.title} by ${createdBlog.author} added`)
       })
       .catch(exception => notify(exception.response.data.error, 'error'))
@@ -108,7 +117,7 @@ const App = () => {
           </Togglable>
           <h2>Blogs</h2>
           {blogs
-            .filter(blog => blog.user?.username === user.username)
+            // .filter(blog => blog.user?.username === user.username)
             .sort((b1, b2) => b2.likes - b1.likes)
             .map(blog => 
               <Blog
