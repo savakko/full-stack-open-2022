@@ -77,6 +77,19 @@ const App = () => {
       .catch(exception => notify(exception.response.data.error, 'error'))
   }
 
+  const deleteBlog = (blog) => {
+    if (!window.confirm(`Remove blog ${blog.title} by ${blog.author}?`))
+      return
+
+    blogService.remove(blog.id)
+      .then(() => {
+        const newBlogs = blogs.filter(b => b.id !== blog.id)
+        setBlogs(newBlogs)
+        notify(`blog ${blog.title} by ${blog.author} deleted`)
+      })
+      .catch(exception => notify(exception.response.data.error, 'error'))
+  }
+
   return (
     <div>
       <h1>Blogs</h1>
@@ -97,7 +110,14 @@ const App = () => {
           {blogs
             .filter(blog => blog.user?.username === user.username)
             .sort((b1, b2) => b2.likes - b1.likes)
-            .map(blog => <Blog key={blog.id} blog={blog} handleLike={updateBlog} />)
+            .map(blog => 
+              <Blog
+                key={blog.id}
+                blog={blog}
+                handleLike={updateBlog}
+                handleDelete={deleteBlog}
+              />
+            )
           }
         </div>
       }
