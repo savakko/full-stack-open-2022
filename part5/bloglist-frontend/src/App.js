@@ -1,6 +1,6 @@
 import './index.css'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import BlogForm from './components/BlogForm'
 import LoginForm from './components/LoginForm'
@@ -13,6 +13,7 @@ const App = () => {
   const [blogs, setBlogs] = useState([])
   const [user, setUser] = useState(null)
   const [notification, setNotification] = useState({ message: '', style: 'success' })
+  const blogFormRef = useRef()
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -56,6 +57,7 @@ const App = () => {
   const createBlog = (newBlog) => {
     blogService.create(newBlog)
       .then(createdBlog => {
+        blogFormRef.current.toggleVisibility()
         setBlogs(blogs.concat(createdBlog))
         notify(`a new blog ${createdBlog.title} by ${createdBlog.author} added`)
       })
@@ -75,7 +77,7 @@ const App = () => {
             {user.name} logged in {' '}
             <button type='submit' onClick={logoutUser}>logout</button>
           </p>
-          <Togglable buttonLabel='new blog'>
+          <Togglable buttonLabel='new blog' ref={blogFormRef}>
             <BlogForm createBlog={createBlog} />
           </Togglable>
           <h2>Blogs</h2>
