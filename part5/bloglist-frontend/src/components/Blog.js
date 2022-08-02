@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-const Blog = ({ blog, handleLike, handleDelete }) => {
+const Blog = ({ blog, handleLike, handleDelete, owned }) => {
   const [infoVisible, setInfoVisible] = useState(false)
   const blogStyle = {
     paddingTop: 10,
@@ -45,7 +45,7 @@ const Blog = ({ blog, handleLike, handleDelete }) => {
             <button type='submit' onClick={addLike}>like</button>
           </div>
           <div>{blog.user?.name}</div>
-          <button type='submit' onClick={deleteBlog}>remove</button>
+          { owned && <button type='submit' onClick={deleteBlog}>remove</button> }
         </div>
       }
     </div>

@@ -125,7 +125,7 @@ const App = () => {
                 blog={blog}
                 handleLike={updateBlog}
                 handleDelete={deleteBlog}
-              />
+                owned={blog.user?.username === user.username}              />
             )
           }
         </div>
