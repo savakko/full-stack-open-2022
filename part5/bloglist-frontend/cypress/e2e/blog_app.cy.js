@@ -1,10 +1,14 @@
-const rootUser = {
-  username: 'root',
-  password: 'sekret'
+const user = {
+  name: 'Matti Luukkainen',
+  username: 'mluukkai',
+  password: 'salainen'
 }
 
 describe('Blog application', function() {
   beforeEach(function() {
+    cy.request('POST', 'http://localhost:3003/api/testing/reset')
+    cy.visit('http://localhost:3000')
+    cy.request('POST', 'http://localhost:3003/api/users/', user)
     cy.visit('http://localhost:3000')
   })
 
@@ -14,8 +18,8 @@ describe('Blog application', function() {
 
   it('login form can be opened', function() {
     cy.contains('login').click()
-    cy.get('input[name="Username"]').type(rootUser.username)
-    cy.get('input[name="Password"]').type(rootUser.password)
+    cy.get('input[name="Username"]').type(user.username)
+    cy.get('input[name="Password"]').type(user.password)
 
     cy.get('#submit-login').click()
     cy.contains('login successful')
@@ -25,8 +29,8 @@ describe('Blog application', function() {
   describe('when logged in', function() {
     beforeEach(function() {
       cy.contains('login').click()
-      cy.get('input[name="Username"]').type(rootUser.username)
-      cy.get('input[name="Password"]').type(rootUser.password)
+      cy.get('input[name="Username"]').type(user.username)
+      cy.get('input[name="Password"]').type(user.password)
       cy.get('#submit-login').click()
     })
 
