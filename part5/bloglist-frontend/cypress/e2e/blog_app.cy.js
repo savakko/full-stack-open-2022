@@ -15,37 +15,44 @@ describe('Blog application', function() {
     cy.visit('http://localhost:3000')
   })
 
-  it('user can login', function() {
+  it('Login form is shown', function() {
     cy.contains('login').click()
-    cy.get('input[name="Username"]').type(user.username)
-    cy.get('input[name="Password"]').type(user.password)
-
-    cy.get('#submit-login').click()
-    cy.contains('login successful')
-    cy.contains('logged in')
+    cy.contains('Username')
+    cy.contains('Password')
   })
 
-  it('login fails with wrong password', function() {
-    cy.contains('login').click()
-    cy.get('input[name="Username"]').type(user.username)
-    cy.get('input[name="Password"]').type('wrong')
-    cy.get('#submit-login').click()
+  describe('Login', function() {
+    it('succeeds with correct credentials', function() {
+      cy.contains('login').click()
+      cy.get('input[name="Username"]').type(user.username)
+      cy.get('input[name="Password"]').type(user.password)
 
-    cy.get('.error')
-      .should('contain', 'invalid username or password')
-      .and('have.css', 'color', 'rgb(255, 0, 0)')
-      .and('have.css', 'border-style', 'solid')
+      cy.get('#submit-login').click()
+      cy.contains('login successful')
+      cy.contains('logged in')
+    })
 
-    cy.get('html').should('not.contain', 'login successful')
+    it('fails with wrong credentials', function() {
+      cy.contains('login').click()
+      cy.get('input[name="Username"]').type(user.username)
+      cy.get('input[name="Password"]').type('wrong')
+      cy.get('#submit-login').click()
+
+      cy.get('.error')
+        .should('contain', 'invalid username or password')
+        .and('have.css', 'color', 'rgb(255, 0, 0)')
+        .and('have.css', 'border-style', 'solid')
+
+      cy.get('html').should('not.contain', 'logged in')
+    })
   })
 
-
-  describe('when logged in', function() {
+  describe('When logged in', function() {
     beforeEach(function() {
       cy.login(user)
     })
 
-    it('a new blog can be created', function() {
+    it('a blog can be created', function() {
       cy.contains('create new blog').click()
       cy.get('#blog-title') .type('Title by Cypress')
       cy.get('#blog-author').type(blogData.author)
@@ -54,7 +61,7 @@ describe('Blog application', function() {
       cy.contains('Title by Cypress')
     })
 
-    describe('when several blogs exist', function () {
+    describe('When several blogs exist', function () {
       beforeEach(function () {
         cy.createBlog({ title: 'First Title',  ...blogData })
         cy.createBlog({ title: 'Second Title', ...blogData })
@@ -68,9 +75,38 @@ describe('Blog application', function() {
         cy.contains('likes')
           .as('likeCount')
           .contains('0')
-
         cy.contains('like').click()
         cy.get('@likeCount').contains('1')
+      })
+
+      it('a blog can be deleted', function () {
+        cy.contains('Third Title')
+          .contains('view')
+          .click()
+        cy.contains('remove').click()
+        cy.get('Third Title').should('not.exist')
+      })
+
+      it('blogs are sorted based on their like counts', function () {
+        cy.contains('First Title').as('firstBlog')
+          .contains('view').click()
+        cy.get('@firstBlog')
+          .contains('like')
+          .as('firstBlogLikeButton')
+
+        cy.contains('Third Title').as('thirdBlog')
+          .contains('view').click()
+        cy.get('@thirdBlog')
+          .contains('like')
+          .as('thirdBlogLikeButton')
+
+        cy.get('@thirdBlogLikeButton').click()
+        cy.get('@firstBlogLikeButton').click()
+        cy.get('@thirdBlogLikeButton').click()
+
+        cy.get('.blog').eq(0).should('contain', 'Third Title')
+        cy.get('.blog').eq(1).should('contain', 'First Title')
+        cy.get('.blog').eq(2).should('contain', 'Second Title')
       })
     })
   })

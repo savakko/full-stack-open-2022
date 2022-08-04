@@ -32,7 +32,7 @@ const Blog = ({ blog, handleLike, handleDelete, owned }) => {
   }
 
   return (
-    <div style={blogStyle}>
+    <div className='blog' style={blogStyle}>
       {blog.title} {blog.author} {' '}
       <button type='submit' onClick={toggleInfo}>
         {!infoVisible ? 'view' : 'hide'}
