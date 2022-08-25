@@ -40,12 +40,12 @@ const voteAnecdote = (id) => {
   }
 }
 
-const addAnecdote = (anecdote) => {
+const createAnecdote = (anecdote) => {
   return {
     type: 'ADD',
     data: asObject(anecdote)
   }
 }
 
-export { voteAnecdote, addAnecdote }
+export { voteAnecdote, createAnecdote }
 export default reducer
