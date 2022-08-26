@@ -8,12 +8,11 @@ const AnecdoteForm = (props) => {
   const addAnecdote = (event) => {
     event.preventDefault()
 
-    const input = event.target.anecdote
-    const anecdote = input.value
-    input.value = ''
+    const value = event.target.anecdote.value
+    event.target.anecdote.value = ''
 
-    dispatch(createAnecdote(anecdote))
-    notify(dispatch, `You created: '${anecdote}'`)
+    dispatch(createAnecdote(value))
+    notify(dispatch, `You created: '${value}'`)
   }
 
   return (
