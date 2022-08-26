@@ -1,6 +1,11 @@
+import { useDispatch } from "react-redux"
+import { updateFilter } from "../reducers/filterReducer"
+
 const Filter = () => {
+  const dispatch = useDispatch()
+
   const handleChange = (event) => {
-    // input-kentän arvo muuttujassa event.target.value
+    dispatch(updateFilter(event.target.value))
   }
   const style = {
     marginBottom: 10
